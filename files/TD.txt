@@ -1,0 +1,140 @@
+1
+ID
+All
+2
+ICONST
+All except
+x
+,
+X
+,
+o
+,
+O
+,
+b
+,
+B
+,
+.
+3
+ICONST
+All except
+.
+,
+e
+,
+E
+4
+DOT
+All except
+.
+5
+CCONST
+All except
+\
+20
+CCONST
+All
+6
+SCONST
+All except
+\
+21
+SCONST
+All
+7
+ASSIGN
+All except
+=
+8
+COLON
+All except
+:
+9
+ADDOP
+All except
++
+10
+ADDOP
+All except
+-
+11
+RELOP
+All except
+=
+12
+RELOP
+All except
+=
+13
+ID
+All except
+i
+22
+ID
+All except
+z
+23
+ID
+All except
+e
+24
+ID
+All except
+o
+25
+ID
+All except
+f
+26
+SIZEOP
+All
+14
+ID
+All except
+A
+,
+D
+27
+LISTFUNC
+All except
+R
+,
+D
+28
+LISTFUNC
+All except
+R
+29
+LISTFUNC
+All except
+R
+15
+ICONST
+All
+16
+ICONST
+All
+17
+ICONST
+All
+18
+FCONST
+All except
+e
+,
+E
+19
+FCONST
+All except
++
+,
+-
+, Digit
+30
+FCONST
+All except Digit
+31
+FCONST
+All
