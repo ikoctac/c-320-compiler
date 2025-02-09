@@ -631,7 +631,7 @@ sum of my AEM: 2+1+1+8+0+4+4 = 20, 20 % 3 = 2 to opoio antistixi stin cpp*/
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-// #include "tokens.h" /* include tokens.h to use the token ids */
+// #include "tokens.h" /* include tokens.h to use the token ids, them before SA created the random numbers.*/
 #include "syntax.tab.h" /* include syntax.tab.h to use the token ids */
 
 // Function to print token details
@@ -2241,7 +2241,7 @@ int main()
 #line 234 ".\\analyzer.l"
 
 
-/* 3:functions{sunartisis} */
+/* 3:functions{sunartisis} */       //removed since SA does the work for me.
 /* Opening the file user provides */
 /* int main(int argc, char *argv[]) {
     int token;

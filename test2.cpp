@@ -1,3 +1,4 @@
+καλη
 typedef char ar[100];
 enum days { monday=1, tuesday, wednesday, thursday, friday };
 class t {
@@ -37,7 +38,7 @@ void mystery_class::__try_it(int& n, days list d) {
    x.i[0] = u.a = 0x33333538;
    x.f[1] = 0x1.f;
    x.i[2] = 0o67;
-   cdar(d) = days.friday;
+   cdar(d) = days;
    cdr(d) = cdr(d)+[days.wednesday];
 }
 void all(int i, int j) {

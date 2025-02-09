@@ -233,7 +233,7 @@ SINGLECOMMENT \/\/[^\n]*
 
 %%
 
-/* 3:functions{sunartisis} */
+/* 3:functions{sunartisis} */       //removed since SA does the work for me.
 /* Opening the file user provides */
 /* int main(int argc, char *argv[]) {
     int token;

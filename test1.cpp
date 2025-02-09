@@ -1,5 +1,4 @@
 typedef char ar[100];
-int hello_world = 100;
 enum days { monday=1, tuesday, wednesday, thursday, friday };
 class t {
 private:
@@ -12,7 +11,6 @@ public:
       int i[2];
       float f[2];
    };
-
 };
 int g[3];
 int g[3][2];
@@ -22,7 +20,7 @@ union u {
    int a;
    char b[4];
    days dd;
-}; 
+};
 int e = 3;
 days list dl[10];
 string str = "string!";
@@ -30,7 +28,7 @@ void mystery_class::__try_it() {
 /*
 ** no comment
 **/
-   int o_zatz0_ine_Malakas = true;
+   ar z;
    static t x;
    char str[100];
    str = "another \n\
@@ -44,13 +42,12 @@ void mystery_class::__try_it() {
    x.i[1] = 0o2762.3;
 }
 int main() {
-   int z,j; string y[100];
-   y[z] = !x && !ar[10][x[j]] || (z == k*3);
-   all(-y[x[i]],x[y[x[j]]]);
-   if (b && (x > a[i%k])) k();
-   for (x=1;(x<x[10,g[y+x]])&&(length(y)<x);x++)
-      cin >> x[i] >> i >> x[i] >> y[i];
-   y = !x[i*sizeof(char)];
-   u.b[3] = '\n';
-
+int z,j; string y[100];
+y[z] = !x && !ar[10][x[j]] || (z == k*3);
+all(-y[x[i]],x[y[x[j]]]);
+if (b && (x > a[i%k])) k();
+for (x=1;(x<x[10,g[y+x]])&&(length(y)<x);x++)
+   cin >> x[i] >> i >> x[i] >> y[i];
+y = !x[i*sizeof(char)];
+u.b[3] = '\n';
 }

@@ -99,7 +99,8 @@
      T_RBRACE = 314,
      T_METH = 315,
      T_INP = 316,
-     T_OUT = 317
+     T_OUT = 317,
+     LOWER_THAN_ELSE = 318
    };
 #endif
 
@@ -111,16 +112,21 @@ typedef union YYSTYPE
 
 /* Line 1676 of yacc.c  */
 #line 22 ".\\syntax.y"
+        //used to define multiple data types that a token or noterminal can hold
+    int ival;   //integer numbers 123,3421 etc
+    float fval; //floating point numbers
+    char cval; //single digits 'a''/n'
+    char* sval; //string like "hello"
 
-    int ival;
-    float fval;
-    char cval;
-    char* sval;
+    //union is like a magic box where you an store different types of things but only one thing at a time
+    //The lexer (scanner) reads words/numbers and puts them into yylval
+    //The parser (Bison) takes yylval and decides what to do with it.
+    //Each token (INTEGER, STRING, etc.) knows where to store its value inside the %union
 
 
 
 /* Line 1676 of yacc.c  */
-#line 124 "syntax.tab.h"
+#line 130 "syntax.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
