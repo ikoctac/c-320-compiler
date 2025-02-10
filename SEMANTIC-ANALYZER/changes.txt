@@ -1,0 +1,11 @@
+so in the new semanticsyntax.y 
+    *1*
+    for declarations like typdefs, Enums, Classes and Unions we evaluate if the t_id is 
+    no already declraed in the current scope
+
+    *2*
+    variabledef, ensures that whenever a variable is defined the parses first evaluates the predicate to verify that the same name does not 
+    already exist in the same scope
+
+    *3*
+    
