@@ -316,9 +316,9 @@ func_declaration : short_func_declaration
                  | full_func_declaration
                  ;
 
-full_func_declaration : full_par_func_header T_LBRACE decl_statements T_RBRACE
-                      | nopar_class_func_header T_LBRACE decl_statements T_RBRACE
-                      | nopar_func_header T_LBRACE decl_statements T_RBRACE         {hashtbl_get(hashtbl, scope); scope--; }
+full_func_declaration : full_par_func_header T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
+                      | nopar_class_func_header T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
+                      | nopar_func_header T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
                       ;
 
 full_par_func_header : class_func_header_start T_LPAREN parameter_list T_RPAREN
@@ -378,24 +378,24 @@ expression_statement : general_expression T_SEMI
                      | error T_SEMI { yyerror("Invalid expression statement; recovering from error"); }
                      ;
 
-if_statement : T_IF T_LPAREN general_expression T_RPAREN statement if_tail       { scope++; }
+if_statement : T_IF T_LPAREN general_expression T_RPAREN { scope++; } statement if_tail { hashtbl_get(hashtbl, scope); scope--; }
             ;
 
 if_tail : T_ELSE statement
         | { } %prec LOWER_THAN_ELSE     //solves dangling else problem
         ;
 
-while_statement : T_WHILE T_LPAREN general_expression T_RPAREN statement    { scope++; }
+while_statement : T_WHILE T_LPAREN general_expression T_RPAREN { scope++; } statement { hashtbl_get(hashtbl, scope); scope--; }
                 ;
 
-for_statement : T_FOR T_LPAREN optexpr T_SEMI optexpr T_SEMI optexpr T_RPAREN statement   { scope++; }
+for_statement : T_FOR T_LPAREN optexpr T_SEMI optexpr T_SEMI optexpr T_RPAREN { scope++; } statement { hashtbl_get(hashtbl, scope); scope--; }
               ;
 
 optexpr : general_expression
         | { }  
         ;
 
-switch_statement : T_SWITCH T_LPAREN general_expression T_RPAREN switch_tail    { scope++; }
+switch_statement : T_SWITCH T_LPAREN general_expression T_RPAREN { scope++; } switch_tail { hashtbl_get(hashtbl, scope); scope--; }
                  ;
 
 switch_tail : T_LBRACE decl_cases T_RBRACE  {hashtbl_get(hashtbl, scope); scope--; }
@@ -442,13 +442,13 @@ out_list : out_list T_OUT out_item
 out_item : general_expression
          ;
 
-comp_statement : T_LBRACE decl_statements T_RBRACE      {hashtbl_get(hashtbl, scope); scope--; }
+comp_statement : T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
                ;
 
-main_function : main_header T_LBRACE decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
+main_function : main_header T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
               ;
 
-main_header : T_INT T_MAIN T_LPAREN T_RPAREN    {scope++; }
+main_header : T_INT T_MAIN T_LPAREN T_RPAREN { scope++; }
             ;
 
 
@@ -476,6 +476,7 @@ int main(int argc, char *argv[]) { // Main function
     yyparse();  // Call the parser
 
     fclose(yyin);  // Close the file after parsing
+    hashtbl_get(hashtbl, scope); //get the hashtable
     hashtbl_destroy(hashtbl);
     return 0;
 }

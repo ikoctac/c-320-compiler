@@ -112,16 +112,16 @@ typedef union YYSTYPE
 
 /* Line 1676 of yacc.c  */
 #line 22 ".\\syntax.y"
-        //used to define multiple data types that a token or noterminal can hold
+        //used to define multiple data types that a token or nonterminal can hold
     int ival;   //integer numbers 123,3421 etc
     float fval; //floating point numbers
-    char cval; //single digits 'a''/n'
+    char cval; //single digits 'a'/'n'
     char* sval; //string like "hello"
 
-    //union is like a magic box where you an store different types of things but only one thing at a time
-    //The lexer (scanner) reads words/numbers and puts them into yylval
-    //The parser (Bison) takes yylval and decides what to do with it.
-    //Each token (INTEGER, STRING, etc.) knows where to store its value inside the %union
+    //union is like a magic box where you can store different types of things but only one thing at a time
+    //the lexer (scanner) reads words/numbers and puts them into yylval
+    //the parser (bison) takes yylval and decides what to do with it.
+    //each token (integer, string, etc.) knows where to store its value inside the %union
 
 
 

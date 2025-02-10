@@ -2284,37 +2284,37 @@ void t_print(int t_id, int value) {
 
 /* Helper function to convert hexadecimal strings to decimal */
 int integer_hexadecimal_to_decimal(const char *str) {
-    return (int)strtol(str + 2, NULL, 16);
-}
+    return (int)strtol(str + 2, NULL, 16);  //skips the 0x or 0X and converts the rest to decimal
+}//16 declares its base to be 16
 
 /* Helper function to convert octal strings to decimal */
 int integer_octal_to_decimal(const char *str) {
-    return (int)strtol(str + 2, NULL, 8);
-}
+    return (int)strtol(str + 2, NULL, 8); //skips the 0o or 0O and converts the rest to decimal
+}//8 declares its base to be 8
 
 /* Helper function to convert binary strings to decimal */
 int integer_binary_to_decimal(const char *str) {
-    return (int)strtol(str + 2, NULL, 2);
-}
+    return (int)strtol(str + 2, NULL, 2); //skips the 0b or 0B and converts the rest to decimal
+}//2 declares its base to be 2
 
 /* Helper function to convert exponential part */
 double convertExponentialPart(const char *str) {
     return strtod(str, NULL); // Directly convert exponential notation
-}
+} //converts the string to floating point number
 
 /* Helper function to convert fractional part */
-double convertFractionalPart(const char *fraction, int base) {
-    double result = 0.0;
+double convertFractionalPart(const char *fraction, int base) {  //coverts the .101 eg or .A3 from given base to decimal 
+    double result = 0.0;    
     int len = strlen(fraction);
     for (int i = 0; i < len; i++) {
-        if (fraction[i] >= '0' && fraction[i] <= '9') {
-            result += (fraction[i] - '0') / pow(base, i + 1);
-        } else if (fraction[i] >= 'A' && fraction[i] <= 'F') {
+        if (fraction[i] >= '0' && fraction[i] <= '9') { //if its [0-9] its numeric value is franction[i]-'0'
+            result += (fraction[i] - '0') / pow(base, i + 1); 
+        } else if (fraction[i] >= 'A' && fraction[i] <= 'F') {//if its [A-F] its value is 10+fraction[i]-'A'
             result += (10 + fraction[i] - 'A') / pow(base, i + 1);
-        } else if (fraction[i] >= 'a' && fraction[i] <= 'f') {
+        } else if (fraction[i] >= 'a' && fraction[i] <= 'f') {//if its [a-z] its value is 10+fraction[i]-'a'
             result += (10 + fraction[i] - 'a') / pow(base, i + 1);
         }
-    }
+    }   //suports anybase(binary,octal,hexadecimal) works withupper and lower hex letters and uses floating-point arithmetic fro accurate conversion.
     return result;
 }
 
@@ -2324,120 +2324,120 @@ double convertToFloat(const char *text) {
     double result = 0.0;
 
     // Check for hexadecimal floating-point numbers
-    if (strncmp(text, "0x", 2) == 0 || strncmp(text, "0X", 2) == 0) {
-        const char *dot = strchr(text, '.');
+    if (strncmp(text, "0x", 2) == 0 || strncmp(text, "0X", 2) == 0) {   //checks if the string starts with 0x or 0X
+        const char *dot = strchr(text, '.');                            //if either true we handle text as hexadeciaml floating point numbers
         if (dot) {
             // Integer part
-            result = integer_hexadecimal_to_decimal(text);
+            result = integer_hexadecimal_to_decimal(text);  //goes into the function skips the 0x or 0X and converts integer part from hexa
             // Fractional part
-            result += convertFractionalPart(dot + 1, 16);
+            result += convertFractionalPart(dot + 1, 16);   //if dot is null there is factional part and the dot+1 points to the first digit after '.'
         } else {
-            result = integer_hexadecimal_to_decimal(text);
+            result = integer_hexadecimal_to_decimal(text);  //converts the fractional part from base 16 to decimal
         }
 
         // Handle exponent part (hexadecimal uses P or p)
-        const char *exp = strpbrk(text, "Pp");
+        const char *exp = strpbrk(text, "Pp");  //searches for P or p in the text
         if (exp) {
             result *= pow(2, atoi(exp + 1)); // Hexadecimal exponents are base-2
         }
     }
     // Check for octal floating-point numbers
-    else if (strncmp(text, "0o", 2) == 0 || strncmp(text, "0O", 2) == 0) {
-        const char *dot = strchr(text, '.');
-        if (dot) {
+    else if (strncmp(text, "0o", 2) == 0 || strncmp(text, "0O", 2) == 0) {  //checks if the string starts with 0o or 0O
+        const char *dot = strchr(text, '.'); //if true finds the first occurence of '.'
+        if (dot) { //if we get a dot it has fractional part
             // Integer part
-            result = integer_octal_to_decimal(text);
+            result = integer_octal_to_decimal(text); //convert the octal integer part to decimal, and skip the 0o
             // Fractional part
-            result += convertFractionalPart(dot + 1, 8);
+            result += convertFractionalPart(dot + 1, 8);   //if dot exists find the first digit after '. and convert it to decimal'
         } else {
             result = integer_octal_to_decimal(text);
         }
     }
     // Check for binary floating-point numbers
-    else if (strncmp(text, "0b", 2) == 0 || strncmp(text, "0B", 2) == 0) {
-        const char *dot = strchr(text, '.');
-        if (dot) {
+    else if (strncmp(text, "0b", 2) == 0 || strncmp(text, "0B", 2) == 0) {  //checks if the string starts with 0b or 0B
+        const char *dot = strchr(text, '.');    //if true finds the first occurence of '.'
+        if (dot) {  //if we get a dot it has fractional part
             // Integer part
-            result = integer_binary_to_decimal(text);
+            result = integer_binary_to_decimal(text); //convert the binary integer part to decimal, and skip the 0b
             // Fractional part
-            result += convertFractionalPart(dot + 1, 2);
+            result += convertFractionalPart(dot + 1, 2);    //if dot exists find the first digit after '. and convert it to decimal'
         } else {
-            result = integer_binary_to_decimal(text);
+            result = integer_binary_to_decimal(text); //convert the binary integer part to decimal
         }
     }
     // Decimal floating-point numbers
     else {
-        result = strtod(text, &endPtr);
+        result = strtod(text, &endPtr); // Directly convert the string to a floating-point number
 
         // Handle fractional part
-        if (*endPtr == '.') {
-            const char *fraction = endPtr + 1;
-            if (strcmp(fraction, "0") != 0 && strspn(fraction, "0") == strlen(fraction)) {
-                printf("Invalid fractional part: %s\n", text);
+        if (*endPtr == '.') { //if the endPtr points to a dot
+            const char *fraction = endPtr + 1; // Move past the dot
+            if (strcmp(fraction, "0") != 0 && strspn(fraction, "0") == strlen(fraction)) { //if the fractional part is not 0 and the fractional part is all 0s
+                printf("Invalid fractional part: %s\n", text); //print the error message
                 exit(1); // Exit on invalid fractional part
             }
-            result += convertFractionalPart(fraction, 10);
+            result += convertFractionalPart(fraction, 10); //convert the fractional part to decimal
             endPtr = strchr(endPtr + 1, 'E'); // Move past the fractional part
         }
 
         // Handle exponential part
-        if (endPtr && (*endPtr == 'E' || *endPtr == 'e')) {
-            result *= pow(10, convertExponentialPart(endPtr + 1));
+        if (endPtr && (*endPtr == 'E' || *endPtr == 'e')) { //if the endPtr points to E or e
+            result *= pow(10, convertExponentialPart(endPtr + 1)); //convert the exponential part to decimal
         }
     }
 
     return result;
 }
 
-/* Helper function to convert a character constant to its ASCII value */
+/* helper function to convert a character constant to its ascii value */
 int convertToChar(const char *text) {
     if (text[1] != '\\') {
-        // Regular character (e.g., 'a', '1')
+        // regular character (e.g., 'a', '1')
         return text[1];
     } else {
-        // Escape sequence (e.g., '\n', '\t')
+        // escape sequence (e.g., '\n', '\t')
         switch (text[2]) {
-            case 'n': return '\n'; // Line Feed
-            case 'f': return '\f'; // Form Feed
-            case 't': return '\t'; // Horizontal Tab
-            case 'r': return '\r'; // Carriage Return
-            case 'b': return '\b'; // Backspace
-            case 'v': return '\v'; // Vertical Tab
-            case '\\': return '\\'; // Backslash
+            case 'n': return '\n'; // line feed
+            case 'f': return '\f'; // form feed
+            case 't': return '\t'; // horizontal tab
+            case 'r': return '\r'; // carriage return
+            case 'b': return '\b'; // backspace
+            case 'v': return '\v'; // vertical tab
+            case '\\': return '\\'; // backslash
             default: 
-                printf("Invalid escape sequence: %s\n", text);
-                exit(1); // Exit on invalid escape sequence
+                printf("invalid escape sequence: %s\n", text);
+                exit(1); // exit on invalid escape sequence
         }
     }
-    return 0; // Should never reach here
+    return 0; // should never reach here
 }
 
-/* Helper function to process a string constant */
+/* helper function to process a string constant */
 void convertToString(const char *text, char *result) {
     int i = 0, j = 0;
     int len = strlen(text);
 
-    // Skip the opening double quote
+    // skip the opening double quote
     i++;
 
-    while (i < len - 1) { // Stop before the closing double quote
+    while (i < len - 1) { // stop before the closing double quote
         if (text[i] == '\\') {
-            i++; // Move past the backslash
+            i++; // move past the backslash
             if (text[i] == '\n') {
-                // Handle multi-line strings: skip the backslash and newline
+                // handle multi-line strings: skip the backslash and newline
                 i++;
             } else {
-                // Handle escape sequences
+                // handle escape sequences
                 switch (text[i]) {
-                    case '"': result[j++] = '"'; break;  // Replace \" with "
-                    case '\\': result[j++] = '\\'; break; // Replace \\ with \
-                    case 'n': result[j++] = '\n'; break;  // Replace \n with newline
-                    case 't': result[j++] = '\t'; break;  // Replace \t with tab
-                    case 'r': result[j++] = '\r'; break;  // Replace \r with carriage return
-                    case 'b': result[j++] = '\b'; break;  // Replace \b with backspace
-                    case 'v': result[j++] = '\v'; break;  // Replace \v with vertical tab
+                    case '"': result[j++] = '"'; break;  // replace \" with "
+                    case '\\': result[j++] = '\\'; break; // replace \\ with \
+                    case 'n': result[j++] = '\n'; break;  // replace \n with newline
+                    case 't': result[j++] = '\t'; break;  // replace \t with tab
+                    case 'r': result[j++] = '\r'; break;  // replace \r with carriage return
+                    case 'b': result[j++] = '\b'; break;  // replace \b with backspace
+                    case 'v': result[j++] = '\v'; break;  // replace \v with vertical tab
                     default: 
-                        // If it's an unknown escape sequence, keep the backslash and the character
+                        // if it's an unknown escape sequence, keep the backslash and the character
                         result[j++] = '\\';
                         result[j++] = text[i];
                         break;
@@ -2445,11 +2445,11 @@ void convertToString(const char *text, char *result) {
                 i++;
             }
         } else {
-            // Regular character
+            // regular character
             result[j++] = text[i++];
         }
     }
 
-    // Null-terminate the result string
+    // null-terminate the result string
     result[j] = '\0';
 }
