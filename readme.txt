@@ -10,3 +10,5 @@
 1:  flex .\analyzer.l  
 2:  bison -v -d .\syntax.y
 3:  gcc -o a.exe syntax.tab.c hashtbl.c lex.yy.c
+
+Βίντεο με το πώς λειτουργεί ότι έχω κάνει και εξηγώ συνοπτικά τί έχω υλοποιήσει: https://www.youtube.com/watch?v=lDFwR_1WgHM
