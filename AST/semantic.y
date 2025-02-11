@@ -90,7 +90,10 @@ void freeAST(ASTNode *node);
     char cval;     /* character literal values */
     char* sval;    /* string literal values, identifier names, etc. */
     int type;      /* type information (e.g., TYPE_INT, TYPE_FLOAT, etc.) */
-    ASTNode* astnode; /* AST node */
+    struct ASTNode* ast;
+    int intValue;
+    float floatValue;
+    char* stringValue;
 }
 /* Token declarations … (your tokens remain unchanged) */
 
@@ -128,8 +131,8 @@ void freeAST(ASTNode *node);
 %token  T_COUT       "cout"
 %token  T_MAIN       "main"
 %token  T_THIS       "this"
-%token  <sval>     T_ID         "id"        //stores a string 
-%token  <ival>     T_ICONST     "iconst"    //stores an integer
+%token  <stringValue>     T_ID         "id"        //stores a string 
+%token  <intValue>     T_ICONST     "iconst"    //stores an integer
 %token  <fval>     T_FCONST     "fconst"    //stores a float
 %token  <cval>     T_CCONST     "cconst"    //stores a character
 %token  <sval>     T_SCONST     "sconst"    //stores a string
@@ -160,89 +163,9 @@ void freeAST(ASTNode *node);
 %token  T_OUT        ">>"
 %token  T_EOF        0   "EOF" //end of file
 
-/* Type declarations for expression-related nonterminals */
-%type <astnode> program
-%type <astnode> global_declarations
-%type <astnode> global_declaration
-%type <astnode> typedef_declaration
-%type <astnode> typename
-%type <type> standard_type
-%type <ival> listspec
-%type <astnode> dims
-%type <astnode> dim
-%type <astnode> enum_declaration
-%type <astnode> enum_body
-%type <astnode> id_list
-%type <astnode> initializer
-%type <astnode> init_value
-%type <astnode> class_declaration
-%type <astnode> class_body
-%type <astnode> parent
-%type <astnode> members_methods
-%type <ival> access
-%type <astnode> member_or_method
-%type <astnode> member
-%type <astnode> var_declaration
-%type <astnode> variabledefs
-%type <astnode> variabledef
-%type <astnode> anonymous_union
-%type <astnode> union_declaration
-%type <astnode> union_body
-%type <astnode> fields
-%type <astnode> field
-%type <astnode> method
-%type <astnode> short_func_declaration
-%type <astnode> short_par_func_header
-%type <astnode> func_header_start
-%type <astnode> parameter_types
-%type <astnode> pass_list_dims
-%type <astnode> nopar_func_header
-%type <astnode> full_func_declaration
-%type <astnode> full_par_func_header
-%type <astnode> class_func_header_start
-%type <astnode> func_class
-%type <astnode> parameter_list
-%type <astnode> pass_variabledef
-%type <astnode> nopar_class_func_header
-%type <astnode> global_var_declaration
-%type <astnode> init_variabledefs
-%type <astnode> init_variabledef
-%type <astnode> expression
-%type <type> expression_type
-%type <astnode> general_expression
-%type <astnode> assignment
-%type <astnode> variable
-%type <type> variable_type
-%type <astnode> constant
-%type <astnode> expression_list
-%type <astnode> listexpression
-%type <astnode> init_values
-%type <astnode> statement
-%type <astnode> expression_statement
-%type <astnode> if_statement
-%type <astnode> if_tail
-%type <astnode> while_statement
-%type <astnode> for_statement
-%type <astnode> optexpr
-%type <astnode> switch_statement
-%type <astnode> switch_tail
-%type <astnode> decl_cases
-%type <astnode> casestatements
-%type <astnode> casestatement
-%type <astnode> single_casestatement
-%type <astnode> return_statement
-%type <astnode> io_statement
-%type <astnode> in_list
-%type <astnode> in_item
-%type <astnode> out_list
-%type <astnode> out_item
-%type <astnode> comp_statement
-%type <astnode> main_function
-%type <astnode> main_header
-%type <astnode> declarations
-%type <astnode> decltype
-%type <astnode> statements
-%type <astnode> decl_statements
+%type <ast> program global_declarations global_declaration typedef_declaration 
+%type <ast> typename standard_type listspec dims dim expression variable 
+%type <ast> if_statement if_tail general_expression statement assignment main_function main_header decl_statements
 
 %left T_COMMA //https://en.cppreference.com/w/c/language/operator_precedence //proseteristikotita gia entoles opws kai theoria 
 %right T_ASSIGN
@@ -267,15 +190,24 @@ void freeAST(ASTNode *node);
 
 %%
 
-program: global_declarations main_function T_EOF
+program: global_declarations main_function T_EOF    
+         { /* Create a Program node and attach children for globals and main */
+        $$ = createASTNode(AST_PROGRAM, NULL, 0, 0.0, '\0');
+$$->ast = $1;
+        addChild($$, $1);
+        addChild($$, $2);
+        }
        | { } 
        ;
 
 global_declarations: global_declarations global_declaration
-                    | { }  
+                        {/* For a list of declarations, link them as siblings */
+                        $$ = $1;
+                        addSibling($$, $2);}
+                    | {$$ = createASTNode(AST_GLOBAL_DECLARATIONS, NULL, 0, 0.0, '\0'); }  
                     ;
 
-global_declaration : typedef_declaration
+global_declaration : typedef_declaration {$$ = $1;}
                    | enum_declaration
                    | class_declaration
                    | union_declaration
@@ -284,41 +216,49 @@ global_declaration : typedef_declaration
                    ;
                                                                     
 typedef_declaration : T_TYPEDEF typename listspec T_ID dims T_SEMI
-                        {
-                            printf("Processing typedef declaration for '%s'...\n", $4);
-                            if (isDeclaredInScope(hashtbl, $4, scope)) {
-                                yyerror("Variable already declared in the current scope");
-                            } else {
-                                hashtbl_insert_debug($4, scope);
-                            }
+                        /* Create a typedef declaration node using the identifier as its value */
+                        { $$ = createASTNode(AST_TYPEDEF_DECLARATION, $4, 0, 0.0, '\0');
+                        /* Attach the type name, list specifier, and dimensions (if any) */
+                        if ($2) addChild($$, $2);
+                        if ($3) addChild($$, $3);
+                        if ($5) addChild($$, $5);
+                        /* Do your symbol table checks */
+                        if (isDeclaredInScope(hashtbl, $4, scope)) {
+                            yyerror("Variable already declared in the current scope");
+                        } else {
+                            hashtbl_insert_debug($4, scope);
+                        }
                         }
                         ;
 
 
-typename : standard_type
-            | T_ID { 
-                        hashtbl_insert_debug($1, scope);
-                        $$ = lookupType($1);   /* lookupType converts a string into a type code */
-                    }
-                    ;
+typename : standard_type { $$ = $1; }
+            | T_ID 
+                {
+                $$ = createASTNode(AST_TYPE_NAME, $1, 0, 0.0, '\0');
+                hashtbl_insert_debug($1, scope);
+                }
+                ;
+standard_type : T_CHAR   { $$ = createASTNode(AST_STANDARD_TYPE, "char", TYPE_CHAR, 0.0, '\0'); }
+                | T_INT    { $$ = createASTNode(AST_STANDARD_TYPE, "int", TYPE_INT, 0.0, '\0'); }
+                | T_FLOAT  { $$ = createASTNode(AST_STANDARD_TYPE, "float", TYPE_FLOAT, 0.0, '\0'); }
+                | T_STRING { $$ = createASTNode(AST_STANDARD_TYPE, "string", TYPE_STRING, 0.0, '\0'); }
+                | T_VOID   { $$ = createASTNode(AST_STANDARD_TYPE, "void", TYPE_VOID, 0.0, '\0'); }
+                ;
 
-standard_type : T_CHAR   { $$ = TYPE_CHAR; }
-              | T_INT    { $$ = TYPE_INT; }
-              | T_FLOAT  { $$ = TYPE_FLOAT; }
-              | T_STRING { $$ = TYPE_STRING; }
-              | T_VOID   { $$ = TYPE_VOID; }
-              ;
+listspec : T_LIST { $$ = createASTNode(AST_LISTSPEC, "list", 1, 0.0, '\0'); }
+        | /* empty */ { $$ = createASTNode(AST_LISTSPEC, "not list", 0, 0.0, '\0'); }
+        ;
 
-listspec : T_LIST { $$ = 1; }
-         |           { $$ = 0; }
-         ;
+dims :dims dim {
+         $$ = $1;
+         addSibling($$, $2);
+        }
+        | /* empty */ { $$ = createASTNode(AST_DIMS, NULL, 0, 0.0, '\0'); }
+        ;
 
-dims : dims dim
-     | { }  
-     ;
-
-dim : T_LBRACK T_ICONST T_RBRACK 
-    | T_LBRACK T_RBRACK
+dim : T_LBRACK T_ICONST T_RBRACK {$$ = createASTNode(AST_DIM, NULL, $2, 0.0, '\0');}     
+    | T_LBRACK T_RBRACK {$$ = createASTNode(AST_DIM, "empty", 0, 0.0, '\0');}
     ;
 
 enum_declaration : T_ENUM T_ID enum_body T_SEMI
@@ -353,13 +293,18 @@ expression : expression T_OROP expression
            | expression T_RELOP expression
            | expression T_ADDOP expression
             {
-                int resultType = predicate_arithmetic_result($1, $3);
-                if (resultType == -1) {
-                    yyerror("Type mismatch in addition operation");
-                }
-                $$ = resultType;
+                $$ = createASTNode(AST_EXPRESSION, "+", 0, 0.0, '\0');
+                addChild($$, $1);
+                addChild($$, $3);
+                /* Insert type checking or semantic actions as needed */
             }
            | expression T_MULOP expression
+            {
+                $$ = createASTNode(AST_EXPRESSION, "*", 0, 0.0, '\0');
+                addChild($$, $1);
+                addChild($$, $3);
+                /* Insert type checking or semantic actions as needed */
+            }
            | T_NOTOP expression
            | T_ADDOP expression
            | T_SIZEOP expression
@@ -370,16 +315,27 @@ expression : expression T_OROP expression
            | T_LENGTH T_LPAREN general_expression T_RPAREN
            | T_NEW T_LPAREN general_expression T_RPAREN
            | constant
-           | T_LPAREN general_expression T_RPAREN
+           | T_LPAREN general_expression T_RPAREN        { $$ = $2; }
            | T_LPAREN standard_type T_RPAREN
            | listexpression
            ;
 
 variable : variable T_LBRACK general_expression T_RBRACK
-         | variable T_DOT T_ID                                  { hashtbl_insert_debug($3, scope); }
+         | variable T_DOT T_ID
+         {
+            {
+                $$ = createASTNode(AST_VARIABLE, ".", 0, 0.0, '\0');
+                addChild($$, $1);
+            }
+            hashtbl_insert_debug($3, scope);
+         }                                   
          | T_LISTFUNC T_LPAREN general_expression T_RPAREN
-         | decltype T_ID                                        { hashtbl_insert_debug($2, scope); }
-         | T_THIS
+         | decltype T_ID  
+            {
+                $$ = createASTNode(AST_VARIABLE, $2, 0, 0.0, '\0');
+                hashtbl_insert_debug($2, scope);
+            }                                      
+         | T_THIS   {$$ = createASTNode(AST_VARIABLE, "this", 0, 0.0, '\0');}
          ;
 
 general_expression : general_expression T_COMMA general_expression
@@ -579,16 +535,16 @@ statements : statements statement
            ;
 
 statement : expression_statement            
-          | if_statement                    
+          | if_statement   { $$ = $1; }                 
           | while_statement                 
           | for_statement                   
           | switch_statement               
           | return_statement                
           | io_statement                    
           | comp_statement                  
-          | T_CONTINUE T_SEMI               
-          | T_BREAK T_SEMI                  
-          | T_SEMI
+          | T_CONTINUE T_SEMI   { $$ = createASTNode(AST_CONTINUE, NULL, 0, 0.0, '\0'); }             
+          | T_BREAK T_SEMI  { $$ = createASTNode(AST_BREAK, NULL, 0, 0.0, '\0'); }              
+          | T_SEMI  {$$ = createASTNode(AST_EXPRESSION_STATEMENT, NULL, 0, 0.0, '\0');}
           ;
 
  /* --- Modified expression_statement with an error production --- */
@@ -596,14 +552,19 @@ expression_statement : general_expression T_SEMI
                      | error T_SEMI { yyerror("Invalid expression statement; recovering from error"); }
                      ;
 
-if_statement : T_IF T_LPAREN general_expression T_RPAREN { scope++; } 
+if_statement : T_IF T_LPAREN general_expression T_RPAREN 
                 statement if_tail { 
-                                    /* Here you could add a predicate to check that all identifiers used in this scope are valid */
-                                    /* For example: predicate_verify_scope(scope); */
-                                    hashtbl_get(hashtbl, scope); scope--; 
-                                }
+                                    $$ = createASTNode(AST_IF_STATEMENT, NULL, 0, 0.0, '\0');
+                                    /* Add the condition and then-statement as children */
+                                    addChild($$, $3);
+                                    addChild($$, $5);
+                                    if ($6 != NULL)
+                                        addChild($$, $6);  /* Else branch if it exists */
+                                    hashtbl_get(hashtbl, scope);
+                                    scope--;   
+                                 }
                                 ;
-if_tail : T_ELSE statement
+if_tail : T_ELSE statement { $$ = $2; }
         | { } %prec LOWER_THAN_ELSE     //solves dangling else problem
         ;
 
@@ -667,10 +628,20 @@ out_item : general_expression
 comp_statement : T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
                ;
 
-main_function : main_header T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
+main_function : main_header T_LBRACE  decl_statements T_RBRACE
+                {
+                $$ = createASTNode(AST_MAIN_FUNCTION, NULL, 0, 0.0, '\0');
+                addChild($$, $1);
+                addChild($$, $3);
+                hashtbl_get(hashtbl, scope); scope--;
+                }
               ;
 
-main_header : T_INT T_MAIN T_LPAREN T_RPAREN { scope++; }
+main_header : T_INT T_MAIN T_LPAREN T_RPAREN
+            {
+                $$ = createASTNode(AST_MAIN_HEADER, "main", 0, 0.0, '\0');
+                scope++;
+            }
             ;
 
 

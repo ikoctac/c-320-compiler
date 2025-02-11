@@ -111,22 +111,22 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 22 ".\\syntax.y"
-        //used to define multiple data types that a token or nonterminal can hold
-    int ival;   //integer numbers 123,3421 etc
-    float fval; //floating point numbers
-    char cval; //single digits 'a'/'n'
-    char* sval; //string like "hello"
+#line 87 ".\\semantic.y"
 
-    //union is like a magic box where you can store different types of things but only one thing at a time
-    //the lexer (scanner) reads words/numbers and puts them into yylval
-    //the parser (bison) takes yylval and decides what to do with it.
-    //each token (integer, string, etc.) knows where to store its value inside the %union
+    int ival;      /* integer literal values or type codes */
+    float fval;    /* floating point literal values */
+    char cval;     /* character literal values */
+    char* sval;    /* string literal values, identifier names, etc. */
+    int type;      /* type information (e.g., TYPE_INT, TYPE_FLOAT, etc.) */
+    struct ASTNode* ast;
+    int intValue;
+    float floatValue;
+    char* stringValue;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 130 "syntax.tab.h"
+#line 130 "semantic.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
