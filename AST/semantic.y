@@ -6,7 +6,7 @@
     #include <string.h>
     #include "hashtbl.h"
     #include "AST.h"
-    #include "syntaxsemantic.tab.h"
+    #include "semantic.tab.h"
 
     #define TYPE_INT    1
     #define TYPE_FLOAT  2
@@ -23,7 +23,8 @@
     void yyerror(const char *s);    //custom error handler to terminate program when necessary
     /* Example definitions. You might refine these based on your type system. */
 
-    int predicate_check_not_declared(char *id, int current_scope) {
+    int predicate_check_type_compatibility(struct ASTNode *node1, struct ASTNode *node2)
+ {
     /* Assume hashtbl_get returns NULL if the identifier is not found in the given scope */
     return (hashtbl_get(hashtbl, current_scope) == NULL);
 }
@@ -193,7 +194,7 @@ void freeAST(ASTNode *node);
 program: global_declarations main_function T_EOF    
          { /* Create a Program node and attach children for globals and main */
         $$ = createASTNode(AST_PROGRAM, NULL, 0, 0.0, '\0');
-$$->ast = $1;
+$$->children = $1;
         addChild($$, $1);
         addChild($$, $2);
         }
@@ -202,12 +203,13 @@ $$->ast = $1;
 
 global_declarations: global_declarations global_declaration
                         {/* For a list of declarations, link them as siblings */
-                        $$ = $1;
+                        $$->children = $1;
                         addSibling($$, $2);}
                     | {$$ = createASTNode(AST_GLOBAL_DECLARATIONS, NULL, 0, 0.0, '\0'); }  
                     ;
 
-global_declaration : typedef_declaration {$$ = $1;}
+global_declaration : typedef_declaration {$$->children = $1
+;}
                    | enum_declaration
                    | class_declaration
                    | union_declaration
@@ -232,7 +234,8 @@ typedef_declaration : T_TYPEDEF typename listspec T_ID dims T_SEMI
                         ;
 
 
-typename : standard_type { $$ = $1; }
+typename : standard_type { $$->children = $1
+; }
             | T_ID 
                 {
                 $$ = createASTNode(AST_TYPE_NAME, $1, 0, 0.0, '\0');
@@ -251,7 +254,8 @@ listspec : T_LIST { $$ = createASTNode(AST_LISTSPEC, "list", 1, 0.0, '\0'); }
         ;
 
 dims :dims dim {
-         $$ = $1;
+         $$->children = $1
+;
          addSibling($$, $2);
         }
         | /* empty */ { $$ = createASTNode(AST_DIMS, NULL, 0, 0.0, '\0'); }
@@ -348,7 +352,8 @@ assignment : variable T_ASSIGN assignment
                 yyerror("Type mismatch in assignment");
             }
             /* Optionally, you could assign $$ the resulting type for later use */
-            $$ = $1;  /* assuming the type of the assignment is that of the variable */
+            $$->children = $1
+;  /* assuming the type of the assignment is that of the variable */
             }
             | expression
             ;
@@ -535,7 +540,8 @@ statements : statements statement
            ;
 
 statement : expression_statement            
-          | if_statement   { $$ = $1; }                 
+          | if_statement   { $$->children = $1
+; }                 
           | while_statement                 
           | for_statement                   
           | switch_statement               

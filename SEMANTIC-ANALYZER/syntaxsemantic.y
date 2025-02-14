@@ -208,11 +208,9 @@ void freeAST(ASTNode *node);
 %type <astnode> init_variabledefs
 %type <astnode> init_variabledef
 %type <astnode> expression
-%type <type> expression_type
 %type <astnode> general_expression
 %type <astnode> assignment
 %type <astnode> variable
-%type <type> variable_type
 %type <astnode> constant
 %type <astnode> expression_list
 %type <astnode> listexpression

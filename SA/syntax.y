@@ -31,6 +31,7 @@
     //each token (integer, string, etc.) knows where to store its value inside the %union
 }
 
+/* %error-verbose //provides more detailed error messages */
 
 %token  T_TYPEDEF    "typedef"      //helps to identify specific words in grammar
 %token  T_CHAR       "char"
@@ -206,6 +207,7 @@ general_expression : general_expression T_COMMA general_expression
 
 assignment : variable T_ASSIGN assignment
            | expression
+           |error { yyerror("Invalid assignment; check syntax."); }
            ;
 
 expression_list : general_expression
@@ -314,6 +316,7 @@ init_variabledef : variabledef initializer
 
 func_declaration : short_func_declaration
                  | full_func_declaration
+                 |error { yyerror("Error in function declaration; check function syntax."); }
                  ;
 
 full_func_declaration : full_par_func_header T_LBRACE { scope++; } decl_statements T_RBRACE { hashtbl_get(hashtbl, scope); scope--; }
@@ -489,7 +492,7 @@ void yyerror(const char *s) {
     fprintf(stderr, "Syntax error at line %d: %s\n", yylineno, s);  //print error message
 
     if (error_count >= 5) {
-        fprintf(stderr, "Too many syntax errors. Aborting parsing.\n");
+        fprintf(stderr, "Too many syntax errors. Aborting parsing.\n"); //SA Question 2
         exit(1);  // terminate program
     }
 }

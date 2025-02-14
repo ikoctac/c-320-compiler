@@ -7,7 +7,7 @@ sum of my AEM: 2+1+1+8+0+4+4 = 20, 20 % 3 = 2 to opoio antistixi stin cpp*/
 #include <math.h>
 #include <string.h>
 // #include "tokens.h" /* include tokens.h to use the token ids, them before SA created the random numbers.*/
-#include "syntaxsemantic.tab.h" /* include syntax.tab.h to use the token ids */
+#include "semantic.tab.h" /* include syntax.tab.h to use the token ids */
 
 // Function to print token details
 void t_print(int t_id, int value);

@@ -111,7 +111,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 87 ".\\semantic.y"
+#line 88 ".\\semantic.y"
 
     int ival;      /* integer literal values or type codes */
     float fval;    /* floating point literal values */

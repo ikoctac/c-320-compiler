@@ -1,3 +1,6 @@
+//test
+/*comment */
+
 typedef char ar[100];
 enum days { monday=1, tuesday, wednesday, thursday, friday };
 class t {

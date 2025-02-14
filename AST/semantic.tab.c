@@ -77,7 +77,7 @@
     #include <string.h>
     #include "hashtbl.h"
     #include "AST.h"
-    #include "syntaxsemantic.tab.h"
+    #include "semantic.tab.h"
 
     #define TYPE_INT    1
     #define TYPE_FLOAT  2
@@ -94,7 +94,8 @@
     void yyerror(const char *s);    //custom error handler to terminate program when necessary
     /* Example definitions. You might refine these based on your type system. */
 
-    int predicate_check_not_declared(char *id, int current_scope) {
+    int predicate_check_type_compatibility(struct ASTNode *node1, struct ASTNode *node2)
+ {
     /* Assume hashtbl_get returns NULL if the identifier is not found in the given scope */
     return (hashtbl_get(hashtbl, current_scope) == NULL);
 }
@@ -156,7 +157,7 @@ void freeAST(ASTNode *node);
 
 
 /* Line 189 of yacc.c  */
-#line 160 "semantic.tab.c"
+#line 161 "semantic.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -255,7 +256,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 87 ".\\semantic.y"
+#line 88 ".\\semantic.y"
 
     int ival;      /* integer literal values or type codes */
     float fval;    /* floating point literal values */
@@ -270,7 +271,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 274 "semantic.tab.c"
+#line 275 "semantic.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -282,7 +283,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 286 "semantic.tab.c"
+#line 287 "semantic.tab.c"
 
 #ifdef short
 # undef short
@@ -644,25 +645,25 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   193,   193,   200,   203,   207,   210,   211,   212,   213,
-     214,   215,   218,   235,   236,   242,   243,   244,   245,   246,
-     249,   250,   253,   257,   260,   261,   264,   275,   278,   279,
-     282,   283,   286,   287,   290,   291,   292,   293,   294,   301,
-     308,   309,   310,   311,   312,   313,   314,   315,   316,   317,
-     318,   319,   320,   323,   324,   332,   333,   338,   341,   342,
-     345,   353,   356,   357,   360,   360,   360,   360,   363,   366,
-     367,   370,   380,   383,   384,   387,   388,   391,   392,   393,
-     394,   397,   398,   401,   402,   406,   407,   410,   411,   414,
-     424,   427,   430,   431,   434,   437,   440,   441,   444,   447,
-     457,   458,   461,   462,   465,   468,   479,   482,   483,   486,
-     489,   490,   493,   493,   494,   494,   495,   495,   498,   499,
-     502,   505,   508,   509,   512,   513,   516,   519,   520,   521,
-     522,   525,   526,   529,   530,   533,   534,   537,   538,   539,
-     540,   541,   542,   543,   544,   545,   546,   547,   551,   552,
-     555,   567,   568,   571,   571,   574,   574,   577,   578,   581,
-     581,   584,   585,   588,   589,   590,   591,   594,   595,   598,
-     599,   600,   603,   604,   607,   610,   611,   614,   615,   618,
-     621,   622,   625,   628,   628,   631,   640
+       0,   194,   194,   201,   204,   208,   211,   213,   214,   215,
+     216,   217,   220,   237,   239,   245,   246,   247,   248,   249,
+     252,   253,   256,   261,   264,   265,   268,   279,   282,   283,
+     286,   287,   290,   291,   294,   295,   296,   297,   298,   305,
+     312,   313,   314,   315,   316,   317,   318,   319,   320,   321,
+     322,   323,   324,   327,   328,   336,   337,   342,   345,   346,
+     349,   358,   361,   362,   365,   365,   365,   365,   368,   371,
+     372,   375,   385,   388,   389,   392,   393,   396,   397,   398,
+     399,   402,   403,   406,   407,   411,   412,   415,   416,   419,
+     429,   432,   435,   436,   439,   442,   445,   446,   449,   452,
+     462,   463,   466,   467,   470,   473,   484,   487,   488,   491,
+     494,   495,   498,   498,   499,   499,   500,   500,   503,   504,
+     507,   510,   513,   514,   517,   518,   521,   524,   525,   526,
+     527,   530,   531,   534,   535,   538,   539,   542,   543,   545,
+     546,   547,   548,   549,   550,   551,   552,   553,   557,   558,
+     561,   573,   574,   577,   577,   580,   580,   583,   584,   587,
+     587,   590,   591,   594,   595,   596,   597,   600,   601,   604,
+     605,   606,   609,   610,   613,   616,   617,   620,   621,   624,
+     627,   628,   631,   634,   634,   637,   646
 };
 #endif
 
@@ -1924,10 +1925,10 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 194 ".\\semantic.y"
+#line 195 ".\\semantic.y"
     { /* Create a Program node and attach children for globals and main */
         (yyval.ast) = createASTNode(AST_PROGRAM, NULL, 0, 0.0, '\0');
-(yyval.ast)->ast = (yyvsp[(1) - (3)].ast);
+(yyval.ast)->children = (yyvsp[(1) - (3)].ast);
         addChild((yyval.ast), (yyvsp[(1) - (3)].ast));
         addChild((yyval.ast), (yyvsp[(2) - (3)].ast));
         ;}
@@ -1936,37 +1937,38 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 200 ".\\semantic.y"
+#line 201 ".\\semantic.y"
     { ;}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 204 ".\\semantic.y"
+#line 205 ".\\semantic.y"
     {/* For a list of declarations, link them as siblings */
-                        (yyval.ast) = (yyvsp[(1) - (2)].ast);
+                        (yyval.ast)->children = (yyvsp[(1) - (2)].ast);
                         addSibling((yyval.ast), (yyvsp[(2) - (2)].ast));;}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 207 ".\\semantic.y"
+#line 208 ".\\semantic.y"
     {(yyval.ast) = createASTNode(AST_GLOBAL_DECLARATIONS, NULL, 0, 0.0, '\0'); ;}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 210 ".\\semantic.y"
-    {(yyval.ast) = (yyvsp[(1) - (1)].ast);;}
+#line 211 ".\\semantic.y"
+    {(yyval.ast)->children = (yyvsp[(1) - (1)].ast)
+;;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 220 ".\\semantic.y"
+#line 222 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_TYPEDEF_DECLARATION, (yyvsp[(4) - (6)].stringValue), 0, 0.0, '\0');
                         /* Attach the type name, list specifier, and dimensions (if any) */
                         if ((yyvsp[(2) - (6)].ast)) addChild((yyval.ast), (yyvsp[(2) - (6)].ast));
@@ -1984,14 +1986,15 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 235 ".\\semantic.y"
-    { (yyval.ast) = (yyvsp[(1) - (1)].ast); ;}
+#line 237 ".\\semantic.y"
+    { (yyval.ast)->children = (yyvsp[(1) - (1)].ast)
+; ;}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 237 ".\\semantic.y"
+#line 240 ".\\semantic.y"
     {
                 (yyval.ast) = createASTNode(AST_TYPE_NAME, (yyvsp[(1) - (1)].stringValue), 0, 0.0, '\0');
                 hashtbl_insert_debug((yyvsp[(1) - (1)].stringValue), scope);
@@ -2001,58 +2004,59 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 242 ".\\semantic.y"
+#line 245 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_STANDARD_TYPE, "char", TYPE_CHAR, 0.0, '\0'); ;}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 243 ".\\semantic.y"
+#line 246 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_STANDARD_TYPE, "int", TYPE_INT, 0.0, '\0'); ;}
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 244 ".\\semantic.y"
+#line 247 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_STANDARD_TYPE, "float", TYPE_FLOAT, 0.0, '\0'); ;}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 245 ".\\semantic.y"
+#line 248 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_STANDARD_TYPE, "string", TYPE_STRING, 0.0, '\0'); ;}
     break;
 
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 246 ".\\semantic.y"
+#line 249 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_STANDARD_TYPE, "void", TYPE_VOID, 0.0, '\0'); ;}
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 249 ".\\semantic.y"
+#line 252 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_LISTSPEC, "list", 1, 0.0, '\0'); ;}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 250 ".\\semantic.y"
+#line 253 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_LISTSPEC, "not list", 0, 0.0, '\0'); ;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 253 ".\\semantic.y"
+#line 256 ".\\semantic.y"
     {
-         (yyval.ast) = (yyvsp[(1) - (2)].ast);
+         (yyval.ast)->children = (yyvsp[(1) - (2)].ast)
+;
          addSibling((yyval.ast), (yyvsp[(2) - (2)].ast));
         ;}
     break;
@@ -2060,28 +2064,28 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 257 ".\\semantic.y"
+#line 261 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_DIMS, NULL, 0, 0.0, '\0'); ;}
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 260 ".\\semantic.y"
+#line 264 ".\\semantic.y"
     {(yyval.ast) = createASTNode(AST_DIM, NULL, (yyvsp[(2) - (3)].intValue), 0.0, '\0');;}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 261 ".\\semantic.y"
+#line 265 ".\\semantic.y"
     {(yyval.ast) = createASTNode(AST_DIM, "empty", 0, 0.0, '\0');;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 265 ".\\semantic.y"
+#line 269 ".\\semantic.y"
     {
                     if (!predicate_check_not_declared((yyvsp[(2) - (4)].stringValue), scope)) {
                         yyerror("Enum redeclaration: identifier already declared in current scope");
@@ -2094,35 +2098,35 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 278 ".\\semantic.y"
+#line 282 ".\\semantic.y"
     { hashtbl_insert_debug((yyvsp[(3) - (4)].stringValue), scope);; ;}
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 279 ".\\semantic.y"
+#line 283 ".\\semantic.y"
     { hashtbl_insert_debug((yyvsp[(1) - (2)].stringValue), scope); ;}
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 283 ".\\semantic.y"
+#line 287 ".\\semantic.y"
     { ;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 287 ".\\semantic.y"
+#line 291 ".\\semantic.y"
     {scope--; ;}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 295 ".\\semantic.y"
+#line 299 ".\\semantic.y"
     {
                 (yyval.ast) = createASTNode(AST_EXPRESSION, "+", 0, 0.0, '\0');
                 addChild((yyval.ast), (yyvsp[(1) - (3)].ast));
@@ -2134,7 +2138,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 302 ".\\semantic.y"
+#line 306 ".\\semantic.y"
     {
                 (yyval.ast) = createASTNode(AST_EXPRESSION, "*", 0, 0.0, '\0');
                 addChild((yyval.ast), (yyvsp[(1) - (3)].ast));
@@ -2146,14 +2150,14 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 318 ".\\semantic.y"
+#line 322 ".\\semantic.y"
     { (yyval.ast) = (yyvsp[(2) - (3)].ast); ;}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 325 ".\\semantic.y"
+#line 329 ".\\semantic.y"
     {
             {
                 (yyval.ast) = createASTNode(AST_VARIABLE, ".", 0, 0.0, '\0');
@@ -2166,7 +2170,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 334 ".\\semantic.y"
+#line 338 ".\\semantic.y"
     {
                 (yyval.ast) = createASTNode(AST_VARIABLE, (yyvsp[(2) - (2)].stringValue), 0, 0.0, '\0');
                 hashtbl_insert_debug((yyvsp[(2) - (2)].stringValue), scope);
@@ -2176,34 +2180,35 @@ yyreduce:
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 338 ".\\semantic.y"
+#line 342 ".\\semantic.y"
     {(yyval.ast) = createASTNode(AST_VARIABLE, "this", 0, 0.0, '\0');;}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 346 ".\\semantic.y"
+#line 350 ".\\semantic.y"
     {
             if (!predicate_check_type_compatibility((yyvsp[(1) - (3)].ast), (yyvsp[(3) - (3)].ast))) {
                 yyerror("Type mismatch in assignment");
             }
             /* Optionally, you could assign $$ the resulting type for later use */
-            (yyval.ast) = (yyvsp[(1) - (3)].ast);  /* assuming the type of the assignment is that of the variable */
+            (yyval.ast)->children = (yyvsp[(1) - (3)].ast)
+;  /* assuming the type of the assignment is that of the variable */
             ;}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 357 ".\\semantic.y"
+#line 362 ".\\semantic.y"
     { ;}
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 371 ".\\semantic.y"
+#line 376 ".\\semantic.y"
     {
                     if (!predicate_check_not_declared((yyvsp[(2) - (4)].stringValue), scope)) {
                         yyerror("Class redeclaration: identifier already declared in current scope");
@@ -2216,63 +2221,63 @@ yyreduce:
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 380 ".\\semantic.y"
+#line 385 ".\\semantic.y"
     {scope--; ;}
     break;
 
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 383 ".\\semantic.y"
+#line 388 ".\\semantic.y"
     { hashtbl_insert_debug((yyvsp[(2) - (2)].stringValue), scope); ;}
     break;
 
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 384 ".\\semantic.y"
+#line 389 ".\\semantic.y"
     { ;}
     break;
 
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 391 ".\\semantic.y"
+#line 396 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 392 ".\\semantic.y"
+#line 397 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 393 ".\\semantic.y"
+#line 398 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 80:
 
 /* Line 1455 of yacc.c  */
-#line 394 ".\\semantic.y"
+#line 399 ".\\semantic.y"
     { ;}
     break;
 
   case 86:
 
 /* Line 1455 of yacc.c  */
-#line 407 ".\\semantic.y"
+#line 412 ".\\semantic.y"
     { yyerror("Missing semicolon in variable declaration; recovering from error"); ;}
     break;
 
   case 89:
 
 /* Line 1455 of yacc.c  */
-#line 415 ".\\semantic.y"
+#line 420 ".\\semantic.y"
     { // verifys that the parse first evaluates the predicate before inserting the variable, to check if it doesnt already exist
                 if (!predicate_check_not_declared((yyvsp[(2) - (3)].stringValue), scope)) {
                     yyerror("Variable redeclaration: identifier already declared in current scope");
@@ -2285,21 +2290,21 @@ yyreduce:
   case 90:
 
 /* Line 1455 of yacc.c  */
-#line 424 ".\\semantic.y"
+#line 429 ".\\semantic.y"
     {scope++; ;}
     break;
 
   case 91:
 
 /* Line 1455 of yacc.c  */
-#line 427 ".\\semantic.y"
+#line 432 ".\\semantic.y"
     {hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 99:
 
 /* Line 1455 of yacc.c  */
-#line 448 ".\\semantic.y"
+#line 453 ".\\semantic.y"
     {
                     if (!predicate_check_not_declared((yyvsp[(3) - (3)].stringValue), scope)) {
                         yyerror("Function redeclaration: identifier already declared in current scope");
@@ -2312,7 +2317,7 @@ yyreduce:
   case 105:
 
 /* Line 1455 of yacc.c  */
-#line 469 ".\\semantic.y"
+#line 474 ".\\semantic.y"
     {
                     if (!predicate_check_not_declared((yyvsp[(2) - (4)].stringValue), scope)) {
                         yyerror("Union redeclaration: identifier already declared in current scope");
@@ -2325,126 +2330,127 @@ yyreduce:
   case 112:
 
 /* Line 1455 of yacc.c  */
-#line 493 ".\\semantic.y"
+#line 498 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 113:
 
 /* Line 1455 of yacc.c  */
-#line 493 ".\\semantic.y"
+#line 498 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 114:
 
 /* Line 1455 of yacc.c  */
-#line 494 ".\\semantic.y"
+#line 499 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 115:
 
 /* Line 1455 of yacc.c  */
-#line 494 ".\\semantic.y"
+#line 499 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 116:
 
 /* Line 1455 of yacc.c  */
-#line 495 ".\\semantic.y"
+#line 500 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 117:
 
 /* Line 1455 of yacc.c  */
-#line 495 ".\\semantic.y"
+#line 500 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 120:
 
 /* Line 1455 of yacc.c  */
-#line 502 ".\\semantic.y"
+#line 507 ".\\semantic.y"
     { hashtbl_insert_debug((yyvsp[(4) - (4)].stringValue), scope); ;}
     break;
 
   case 121:
 
 /* Line 1455 of yacc.c  */
-#line 505 ".\\semantic.y"
+#line 510 ".\\semantic.y"
     { hashtbl_insert_debug((yyvsp[(1) - (2)].stringValue), scope); ;}
     break;
 
   case 125:
 
 /* Line 1455 of yacc.c  */
-#line 513 ".\\semantic.y"
+#line 518 ".\\semantic.y"
     { hashtbl_insert_debug((yyvsp[(2) - (2)].stringValue), scope); ;}
     break;
 
   case 130:
 
 /* Line 1455 of yacc.c  */
-#line 522 ".\\semantic.y"
+#line 527 ".\\semantic.y"
     { /*empty*/;}
     break;
 
   case 131:
 
 /* Line 1455 of yacc.c  */
-#line 525 ".\\semantic.y"
+#line 530 ".\\semantic.y"
     {scope++; ;}
     break;
 
   case 134:
 
 /* Line 1455 of yacc.c  */
-#line 530 ".\\semantic.y"
+#line 535 ".\\semantic.y"
     { ;}
     break;
 
   case 138:
 
 /* Line 1455 of yacc.c  */
-#line 538 ".\\semantic.y"
-    { (yyval.ast) = (yyvsp[(1) - (1)].ast); ;}
+#line 543 ".\\semantic.y"
+    { (yyval.ast)->children = (yyvsp[(1) - (1)].ast)
+; ;}
     break;
 
   case 145:
 
 /* Line 1455 of yacc.c  */
-#line 545 ".\\semantic.y"
+#line 551 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_CONTINUE, NULL, 0, 0.0, '\0'); ;}
     break;
 
   case 146:
 
 /* Line 1455 of yacc.c  */
-#line 546 ".\\semantic.y"
+#line 552 ".\\semantic.y"
     { (yyval.ast) = createASTNode(AST_BREAK, NULL, 0, 0.0, '\0'); ;}
     break;
 
   case 147:
 
 /* Line 1455 of yacc.c  */
-#line 547 ".\\semantic.y"
+#line 553 ".\\semantic.y"
     {(yyval.ast) = createASTNode(AST_EXPRESSION_STATEMENT, NULL, 0, 0.0, '\0');;}
     break;
 
   case 149:
 
 /* Line 1455 of yacc.c  */
-#line 552 ".\\semantic.y"
+#line 558 ".\\semantic.y"
     { yyerror("Invalid expression statement; recovering from error"); ;}
     break;
 
   case 150:
 
 /* Line 1455 of yacc.c  */
-#line 556 ".\\semantic.y"
+#line 562 ".\\semantic.y"
     { 
                                     (yyval.ast) = createASTNode(AST_IF_STATEMENT, NULL, 0, 0.0, '\0');
                                     /* Add the condition and then-statement as children */
@@ -2460,105 +2466,105 @@ yyreduce:
   case 151:
 
 /* Line 1455 of yacc.c  */
-#line 567 ".\\semantic.y"
+#line 573 ".\\semantic.y"
     { (yyval.ast) = (yyvsp[(2) - (2)].ast); ;}
     break;
 
   case 152:
 
 /* Line 1455 of yacc.c  */
-#line 568 ".\\semantic.y"
+#line 574 ".\\semantic.y"
     { ;}
     break;
 
   case 153:
 
 /* Line 1455 of yacc.c  */
-#line 571 ".\\semantic.y"
+#line 577 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 154:
 
 /* Line 1455 of yacc.c  */
-#line 571 ".\\semantic.y"
+#line 577 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 155:
 
 /* Line 1455 of yacc.c  */
-#line 574 ".\\semantic.y"
+#line 580 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 156:
 
 /* Line 1455 of yacc.c  */
-#line 574 ".\\semantic.y"
+#line 580 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 158:
 
 /* Line 1455 of yacc.c  */
-#line 578 ".\\semantic.y"
+#line 584 ".\\semantic.y"
     { ;}
     break;
 
   case 159:
 
 /* Line 1455 of yacc.c  */
-#line 581 ".\\semantic.y"
+#line 587 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 160:
 
 /* Line 1455 of yacc.c  */
-#line 581 ".\\semantic.y"
+#line 587 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 161:
 
 /* Line 1455 of yacc.c  */
-#line 584 ".\\semantic.y"
+#line 590 ".\\semantic.y"
     {hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 166:
 
 /* Line 1455 of yacc.c  */
-#line 591 ".\\semantic.y"
+#line 597 ".\\semantic.y"
     { ;}
     break;
 
   case 167:
 
 /* Line 1455 of yacc.c  */
-#line 594 ".\\semantic.y"
+#line 600 ".\\semantic.y"
     {scope++; ;}
     break;
 
   case 183:
 
 /* Line 1455 of yacc.c  */
-#line 628 ".\\semantic.y"
+#line 634 ".\\semantic.y"
     { scope++; ;}
     break;
 
   case 184:
 
 /* Line 1455 of yacc.c  */
-#line 628 ".\\semantic.y"
+#line 634 ".\\semantic.y"
     { hashtbl_get(hashtbl, scope); scope--; ;}
     break;
 
   case 185:
 
 /* Line 1455 of yacc.c  */
-#line 632 ".\\semantic.y"
+#line 638 ".\\semantic.y"
     {
                 (yyval.ast) = createASTNode(AST_MAIN_FUNCTION, NULL, 0, 0.0, '\0');
                 addChild((yyval.ast), (yyvsp[(1) - (4)].ast));
@@ -2570,7 +2576,7 @@ yyreduce:
   case 186:
 
 /* Line 1455 of yacc.c  */
-#line 641 ".\\semantic.y"
+#line 647 ".\\semantic.y"
     {
                 (yyval.ast) = createASTNode(AST_MAIN_HEADER, "main", 0, 0.0, '\0');
                 scope++;
@@ -2580,7 +2586,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 2584 "semantic.tab.c"
+#line 2590 "semantic.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2792,7 +2798,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 648 ".\\semantic.y"
+#line 654 ".\\semantic.y"
 
 
 int main(int argc, char *argv[]) { // Main function

@@ -80,7 +80,9 @@ typedef enum {
     AST_OUT_ITEM,
     AST_COMP_STATEMENT,
     AST_MAIN_FUNCTION,
-    AST_MAIN_HEADER
+    AST_MAIN_HEADER,
+    AST_CONTINUE,
+    AST_BREAK
 } ASTNodeType;
 
 // Define the AST node structure
